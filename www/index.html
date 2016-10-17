@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Google Charts Tutorial</title>
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript">
+     google.charts.load('current', {packages: ['orgchart']});     
+   </script>
+   <style>
+.card {
+  height: 120px;
+  width: 200px;
+
+}
+
+.card_row{
+  display:inline-block;
+  height:100%;
+  width:100%;
+}
+
+.avatar_img{
+  max-width:100%;
+  max-height:100%;
+}
+
+.avatar {
+  height: 75%;
+  width: 30%;
+
+  float: left;
+}
+
+.info_collum {
+    height:100%;
+    width: 65%;
+    float: left;
+
+}
+
+ .info_cell {
+    height: 20%;
+    width: 45%;
+    float: left;
+}
+
+
+</style>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<body>
+<div id="chart_div" style="width: 550px; height: 400px; margin: 0 auto"></div>
+<script language="JavaScript">
+
+// function concatHtml(imageFile, linkedinUrl, facebookUrl) {
+//   return "<table style='width: 100 %'><tr> <td><img src='" + imageFile + "' height='42' width='50'></th><td>facebook</th><td><a href='" + facebookUrl + "'>facebook</a></th></tr><tr><td></td><td>linkedin : </td><td><a href='" + linkedinUrl + "'>linkedin</a></td></tr></table>"
+// }
+
+function concatHtml(name, surname, imageFile, linkedinUrl, facebookUrl) {
+return "<div class='card'><div class='card_row'><div class='avatar'><img src='" + imageFile  + "' class='avatar_img'></div><div  class='info_collum'><div class='info_cell'>name</div><div class='info_cell'>" + name +  "</div><div class='info_cell'>surename</div><div class='info_cell'>"+ surname  +"</div>  <div class='info_cell'>linkedin</div><div class='info_cell'><a href='" + linkedinUrl + "'>linkedin</a></div><div class='info_cell'>facebook</div><div class='info_cell'><a href='" + facebookUrl  + "'>facebook</a></div></div></div></div>"
+}
+
+
+
+function drawChart(emps) {
+  var data = new google.visualization.DataTable();
+
+  jQuery.ajax({
+         type: "GET",
+         //url: "http://localhost:5000/employees",
+         url: "/employees",
+         contentType: "application/json; charset=utf-8",
+          dataType: "json",
+         success: function (resp_data, status, jqXHR) {
+             // do something
+             console.log(resp_data)
+              // orgHierachy = []
+              // resp_data.forEach(function(emp) {
+              //   e = [{
+              //     v: emp.employee,
+              //     f: concatHtml(emp.imageFile, emp.linkedin, emp.facebook)
+              //   }, emp.Manager]
+              //   orgHierachy.push(e)
+              // });
+              orgHierachy = []
+              resp_data.forEach( function (resp_data)
+              {
+                  e = [{v:resp_data.employee, f:concatHtml(resp_data.name, resp_data.surname, resp_data.imageFile, resp_data.linkedin, resp_data.facebook) }, resp_data.Manager]
+                  orgHierachy.push(e)
+              });
+
+              data.addColumn('string', 'Name');
+              data.addColumn('string', 'Parent');
+
+              data.addRows(orgHierachy);
+
+              var chart = new google.visualization.OrgChart(document.querySelector('#chart_div'));
+              chart.draw(data, {
+                allowHtml: true
+              });
+         },
+
+         error: function (jqXHR, status) {
+             // error handler
+         }
+      });
+}
+google.charts.setOnLoadCallback(drawChart);
+
+</script>
+</body>
+</html>
+
